@@ -26,21 +26,21 @@ class Petstore extends Simulation {
         .check((status is 200), substring("Welcome to JPetStore"))
     )
     .pause(1)
+
     .exec(
       http("Click 'enter the store' link")
         .get("/actions/Catalog.action")
         .check((status is 200), substring("Saltwater, Freshwater"))
     )
     .pause(1)
+
     .exec(
       http("Click on ‘Sign In’")
         .get("/actions/Account.action?signonForm=")
-        .check(
-          (status is 200),
-          substring("Please enter your username and password.")
-        )
+        .check((status is 200), substring("Please enter your username and password."))
     )
     .pause(1)
+
     .exec(
       http("Click on 'register now’ link")
         .get("/actions/Account.action?newAccountForm=")
@@ -50,5 +50,5 @@ class Petstore extends Simulation {
 
   setUp(
     scn.inject(atOnceUsers(2)).protocols(httpProtocol)
-  ).protocols(httpProtocol)
+  )
 }

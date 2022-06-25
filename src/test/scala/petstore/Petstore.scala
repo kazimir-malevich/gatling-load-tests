@@ -8,7 +8,9 @@ import scala.util.Random
 
 class Petstore extends Simulation {
 
-  def random(len: Int): String = Random.alphanumeric.filter(_.isLetter).take(len).mkString
+  val feederRandomValue = Iterator.continually(
+    Map("randomValue" -> Random.alphanumeric.take(10).mkString)
+  )
 
   val httpProtocol =
     http
@@ -23,48 +25,49 @@ class Petstore extends Simulation {
       )
 
   val scn = scenario("Petstore")
-
     .exec(
       http("Home")
         .get("/")
         .check((status is 200), substring("Welcome to JPetStore"))
     )
     .pause(1)
-
     .exec(
       http("Click 'enter the store' link")
         .get("/actions/Catalog.action")
         .check((status is 200), substring("Saltwater, Freshwater"))
     )
     .pause(1)
-
     .exec(
       http("Click on ‘Sign In’")
         .get("/actions/Account.action?signonForm=")
-        .check((status is 200), substring("Please enter your username and password."))
+        .check(
+          (status is 200),
+          substring("Please enter your username and password.")
+        )
     )
     .pause(1)
-
     .exec(
       http("Click on 'register now’ link")
         .get("/actions/Account.action?newAccountForm=")
         .check((status is 200), substring("User Information"))
+        .check(
+          regex("""name="_sourcePage" value=(.+?)"""").saveAs("sourcePage"),
+          regex("""name="__fp" value=(.+?)"""").saveAs("fp")
+        )
     )
     .pause(1)
-
-    val staticVal = random(5)
-
-    exec(
-      http("Register Now")
+    .feed(feederRandomValue)
+    .exec(
+      http("Register")
         .post("/actions/Account.action")
-        .formParam("username", staticVal)
+        .formParam("username", "${randomValue}")
         .formParam("password", "password")
-        .formParam("repeatedPassword", "password" )
+        .formParam("repeatedPassword", "password")
         .formParam("account.firstName", "aidy")
         .formParam("account.lastName", "lewis")
         .formParam("account.email", "x@x.com")
         .formParam("account.phone", "07123456789")
-        .formParam("account.address", "139 Kings Road")
+        .formParam("account.address1", "139 Kings Road")
         .formParam("account.address2", "")
         .formParam("account.city", "Ashton")
         .formParam("account.state", "MCR")
@@ -72,11 +75,23 @@ class Petstore extends Simulation {
         .formParam("account.country", "England")
         .formParam("account.languagePreference", "English")
         .formParam("account.favouriteCategoryId", "FISH")
-        .formParam("account.newAccount", "Save Account Information")
-        .formParam("_sourcePage", "9J-iMAXq9dG0LMgE4V3KSSKTw9srBcUe0SbJOrsq3vIUNciL00U9DRFBZpACw8IWp49AzOLT6WBBlcG8fI2ilrdMRlPVzDikCyGTNlKQI7o=")
-        .formParam("__fp", "ozWOy1XVolzhao1yxtUN88Q2a14M_zok4D5hqk6q1kUfbDiktNlmCs6LZ-WlER3rZK-tPmeQ3horzSEeVE0vGQ_XaqoIGx5lOV8PdoIUljGC7qqgdLiBR58ZR9T6iF4Yjczs3K3rguWbuBRHP6p6XHoIvs74I8v7DerwfeNtWLRpO-WSLIUTJi4qD0luMle")
+        .formParam("newAccount", "Save Account Information")
+        .formParam("_sourcePage", "#{sourcePage}")
+        .formParam("__fp", "#{fp}")
         .check((status is 200), substring("Saltwater, Freshwater"))
-      )
+    )
+    .pause(5)
+    .exec(
+      http("Login")
+        .post("/actions/Account.action")
+        .formParam("username", "${randomValue}")
+        .formParam("password", "password")
+        .formParam("signon", "Login")
+        .formParam("_sourcePage", "#{sourcePage}")
+        .formParam("__fp", "#{fp}")
+        .check((status is 200), substring("Welcome"))
+    )
+    .pause(2)
 
   setUp(
     scn.inject(atOnceUsers(2)).protocols(httpProtocol)

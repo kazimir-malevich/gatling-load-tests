@@ -23,6 +23,7 @@ class Petstore extends Simulation {
       )
 
   val scn = scenario("Petstore")
+
     .exec(
       http("Home")
         .get("/")
@@ -36,7 +37,6 @@ class Petstore extends Simulation {
         .check((status is 200), substring("Saltwater, Freshwater"))
     )
     .pause(1)
-
 
     .exec(
       http("Click on ‘Sign In’")
@@ -54,32 +54,29 @@ class Petstore extends Simulation {
 
 		val staticVal = random(5)
 
-		exec(
-			http("Register Now")
-				.post("/actions/Account.action")
-				.formParam("username", staticVal)
-				.formParam("password", "password")
-				.formParam("repeatedPassword", "password" )
-				.formParam("account.firstName", "aidy")
-				.formParam("account.lastName", "lewis")
-				.formParam("account.email", "x@x.com")
-				.formParam("account.phone", "07123456789")
-				.formParam("account.address", "139 Kings Road")
-				.formParam("account.address2", "")
-				.formParam("account.city", "Ashton")
-				.formParam("account.state", "MCR")
-				.formParam("account.zip", "OL68EZ")
-				.formParam("account.country", "England")
-				.formParam("account.languagePreference", "English")
-				.formParam("account.favouriteCategoryId", "FISH")
-				.formParam("account.newAccount", "Save Account Information")
-				.formParam("_sourcePage", "9J-iMAXq9dG0LMgE4V3KSSKTw9srBcUe0SbJOrsq3vIUNciL00U9DRFBZpACw8IWp49AzOLT6WBBlcG8fI2ilrdMRlPVzDikCyGTNlKQI7o=")
-				.formParam("__fp", "ozWOy1XVolzhao1yxtUN88Q2a14M_zok4D5hqk6q1kUfbDiktNlmCs6LZ-WlER3rZK-tPmeQ3horzSEeVE0vGQ_XaqoIGx5lOV8PdoIUljGC7qqgdLiBR58ZR9T6iF4Yjczs3K3rguWbuBRHP6p6XHoIvs74I8v7DerwfeNtWLRpO-WSLIUTJi4qD0luMle")
+    exec(
+      http("Register Now")
+        .post("/actions/Account.action")
+        .formParam("username", staticVal)
+        .formParam("password", "password")
+        .formParam("repeatedPassword", "password" )
+        .formParam("account.firstName", "aidy")
+        .formParam("account.lastName", "lewis")
+        .formParam("account.email", "x@x.com")
+        .formParam("account.phone", "07123456789")
+        .formParam("account.address", "139 Kings Road")
+        .formParam("account.address2", "")
+        .formParam("account.city", "Ashton")
+        .formParam("account.state", "MCR")
+        .formParam("account.zip", "OL68EZ")
+        .formParam("account.country", "England")
+        .formParam("account.languagePreference", "English")
+        .formParam("account.favouriteCategoryId", "FISH")
+        .formParam("account.newAccount", "Save Account Information")
+        .formParam("_sourcePage", "9J-iMAXq9dG0LMgE4V3KSSKTw9srBcUe0SbJOrsq3vIUNciL00U9DRFBZpACw8IWp49AzOLT6WBBlcG8fI2ilrdMRlPVzDikCyGTNlKQI7o=")
+        .formParam("__fp", "ozWOy1XVolzhao1yxtUN88Q2a14M_zok4D5hqk6q1kUfbDiktNlmCs6LZ-WlER3rZK-tPmeQ3horzSEeVE0vGQ_XaqoIGx5lOV8PdoIUljGC7qqgdLiBR58ZR9T6iF4Yjczs3K3rguWbuBRHP6p6XHoIvs74I8v7DerwfeNtWLRpO-WSLIUTJi4qD0luMle")
         .check((status is 200), substring("Saltwater, Freshwater"))
-		)
-
-  
-    
+      )
 
   setUp(
     scn.inject(atOnceUsers(2)).protocols(httpProtocol)

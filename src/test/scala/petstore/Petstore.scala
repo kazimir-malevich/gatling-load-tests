@@ -8,9 +8,7 @@ import scala.util.Random
 
 class Petstore extends Simulation {
 
-  val feederRandomValue = Iterator.continually(
-    Map("randomValue" -> Random.alphanumeric.take(10).mkString)
-  )
+  val feederRandomValue = Iterator.continually(Map("randomValue" -> Random.alphanumeric.take(10).mkString))
 
   val httpProtocol =
     http
@@ -25,44 +23,44 @@ class Petstore extends Simulation {
       )
 
   val scn = scenario("Petstore")
+
     .exec(
       http("Home")
         .get("/")
         .check((status is 200), substring("Welcome to JPetStore"))
     )
     .pause(1)
+
     .exec(
       http("Click 'enter the store' link")
         .get("/actions/Catalog.action")
         .check((status is 200), substring("Saltwater, Freshwater"))
     )
     .pause(1)
+
     .exec(
       http("Click on ‘Sign In’")
         .get("/actions/Account.action?signonForm=")
-        .check(
-          (status is 200),
-          substring("Please enter your username and password.")
-        )
+        .check((status is 200), substring("Please enter your username and password."))
     )
     .pause(1)
+
     .exec(
       http("Click on 'register now’ link")
         .get("/actions/Account.action?newAccountForm=")
         .check((status is 200), substring("User Information"))
-        .check(
-          regex("""name="_sourcePage" value=(.+?)"""").saveAs("sourcePage"),
-          regex("""name="__fp" value=(.+?)"""").saveAs("fp")
-        )
+        .check(regex("""name="_sourcePage" value=(.+?)"""").saveAs("sourcePage"),
+			  regex("""name="__fp" value=(.+?)"""").saveAs("fp"))
     )
     .pause(1)
+
     .feed(feederRandomValue)
     .exec(
       http("Register")
         .post("/actions/Account.action")
         .formParam("username", "${randomValue}")
         .formParam("password", "password")
-        .formParam("repeatedPassword", "password")
+        .formParam("repeatedPassword", "password" )
         .formParam("account.firstName", "aidy")
         .formParam("account.lastName", "lewis")
         .formParam("account.email", "x@x.com")
@@ -79,8 +77,9 @@ class Petstore extends Simulation {
         .formParam("_sourcePage", "#{sourcePage}")
         .formParam("__fp", "#{fp}")
         .check((status is 200), substring("Saltwater, Freshwater"))
-    )
-    .pause(5)
+      )
+      .pause(5)
+
     .exec(
       http("Login")
         .post("/actions/Account.action")
@@ -90,31 +89,36 @@ class Petstore extends Simulation {
         .formParam("_sourcePage", "#{sourcePage}")
         .formParam("__fp", "#{fp}")
         .check((status is 200), substring("Welcome"))
-    )
+      )
     .pause(2)
+
     .exec(
       http("Click on 'Dogs' link")
         .get("/actions/Catalog.action?viewCategory=&categoryId=DOGS")
         .check((status is 200), substring("Dogs"))
     )
     .pause(1)
+
     .exec(
       http("Click on 'Poodle' link")
         .get("/actions/Catalog.action?viewProduct=&productId=K9-PO-02")
         .check((status is 200), substring("Poodle"))
     )
     .pause(1)
+
     .exec(
       http("Add a ‘Male Puppy Poodle’ to cart")
         .get("/actions/Cart.action?addItemToCart=&workingItemId=EST-8")
         .check((status is 200), substring("Shopping Cart"))
     )
     .pause(1)
+
     .exec(
       http("Go to Checkout")
         .get("/actions/Order.action?newOrderForm=")
         .check((status is 200), substring("Payment Details"))
     )
+
     .exec(
       http("Enter Information and then continue")
         .post("/actions/Order.action")
@@ -135,21 +139,21 @@ class Petstore extends Simulation {
         .check((status is 200), substring("Order"))
     )
     .pause(5)
+
     .exec(
       http("Confirm")
         .get("/actions/Order.action?newOrder=&confirmed=true")
-        .check(
-          (status is 200),
-          substring("Thank you, your order has been submitted")
-        )
+        .check((status is 200), substring("Thank you, your order has been submitted"))
     )
     .pause(2)
+
     .exec(
       http("Sign Out")
         .get("/actions/Account.action?signoff=")
         .check((status is 200), substring("Sign In"))
     )
   setUp(
-    scn.inject(atOnceUsers(2)).protocols(httpProtocol)
+    scn.inject(constantConcurrentUsers(5).during(30 miniutes))
+      .protocols(httpProtocol)
   )
 }

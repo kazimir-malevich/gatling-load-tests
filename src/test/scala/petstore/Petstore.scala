@@ -152,6 +152,7 @@ class Petstore extends Simulation {
         .get("/actions/Account.action?signoff=")
         .check((status is 200), substring("Sign In"))
     )
+
   setUp(
     scn.inject(constantConcurrentUsers(5).during(30 miniutes))
       .protocols(httpProtocol)

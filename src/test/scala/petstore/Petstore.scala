@@ -52,7 +52,7 @@ class Petstore extends Simulation {
     )
     .pause(1)
 
-		val staticVal = random(5)
+    val staticVal = random(5)
 
     exec(
       http("Register Now")

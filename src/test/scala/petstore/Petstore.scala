@@ -153,8 +153,10 @@ class Petstore extends Simulation {
         .check((status is 200), substring("Sign In"))
     )
 
+    .pause(6 minutes)
+
   setUp(
-    scn.inject(constantConcurrentUsers(5).during(30 miniutes))
+    scn.inject(constantConcurrentUsers(5).during(30 minutes))
       .protocols(httpProtocol)
   )
 }
